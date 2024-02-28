@@ -7,7 +7,7 @@ const router =express.Router();
 
 
 router.post("/addmsg",addMessage)
-router.post("/getmsg",getAllMessage)
+router.post("/getmsg/",getAllMessage)
 
 
 

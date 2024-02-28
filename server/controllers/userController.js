@@ -2,18 +2,51 @@ const User = require("../models/userModels");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+// const registerUser = async (req, res) => {
+//   const { username, email, password } = req.body;
+//   if (!username || !email || !password) {
+//     return res.status(401).json({
+//       message: "Please All fields required",
+//     });
+//   }
+//   try {
+//     const userCheck = await User.findOne({ username,email});
+//     if (!userCheck) {
+//       res.status(401).json({ message: "user already exists" });
+//     }
+//     bcrypt.hash(password, 10).then(async (hash) => {
+//       await User.create({
+//         username: username,
+//         email: email,
+//         password: hash,
+//       }).then((user) => {
+//         return res
+//           .status(200)
+//           .json({ message: "New User Created Successfully", user });
+//       });
+//     });
+//   } catch (error) {
+//     return res.status(500).json({ message: error.message });
+//   }
+// };
+
+// Login User
+
 const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
-  if (!username || !email || !password) {
-    return res.status(401).json({
-      message: "Please All fields required",
-    });
-  }
   try {
-    const userCheck = await User.findOne({ username, email });
-    if (userCheck) {
-      res.status(401).json({ message: "user already exists" });
+    if (!username || !email || !password) {
+      return res.status(401).json({
+        message: "Please All Field Required",
+      });
     }
+    const userCheck = await User.findOne({ username });
+    if (userCheck) {
+      return res.status(402).json({
+        message: "User Already Exists",
+      });
+    }
+
     bcrypt.hash(password, 10).then(async (hash) => {
       await User.create({
         username: username,
@@ -30,15 +63,13 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Login User
-
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
+  const { username, password } = req.body;
+  if (!username || !password) {
     return res.status(401).json({ message: "Please All Field Required" });
   }
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ message: "User Not Found" });
     }
@@ -76,35 +107,29 @@ const avatharUser = async (req, res) => {
   }
 };
 
-
-// Get users
-
-const getUser =async(req,res)=>{
-    const {id}=req.params
-    try {
-        const user = await User.findById(id);
-        return res.status(200).json(user)
-    } catch (error) {
-        return res.status(500).json({message:error.message})
-    }
-}
-
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({
+      _id: { $ne: req.params.id },
+    }).select(["email", "username", "avatarImage", "_id"]);
+    return res.json(users);
+  } catch (err) {
+    next(err);
+  }
+};
 
 // LogOut User
 
-const logOut =async(req,res)=>{
-    try {
-      if(!req.params.id){
-        return res.staus(400).json({message:"user Id is required"});
-      }
-      onlineUsers.delete(req.params.id);
-      return res.status(200).json({message:"User Logout"})
-    } catch (error) {
-      return res.status(500).json({message:error.message})
+const logOut = async (req, res) => {
+  try {
+    if (!req.params.id) {
+      return res.staus(400).json({ message: "user Id is required" });
     }
-}
+    onlineUsers.delete(req.params.id);
+    return res.status(200).json({ message: "User Logout" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
-
-
-
-module.exports = { registerUser, loginUser, avatharUser,getUser ,logOut};
+module.exports = { registerUser, loginUser, avatharUser, getAllUsers, logOut };

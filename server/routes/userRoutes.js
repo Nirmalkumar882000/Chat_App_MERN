@@ -1,14 +1,12 @@
 const express = require('express');
 const router =express.Router();
-const {registerUser, loginUser, avatharUser,getUser, logOut } = require('../controllers/userController');
+const {registerUser, loginUser, avatharUser,getAllUsers, logOut } = require('../controllers/userController');
 
 router.post("/register",registerUser)
 router.post("/login",loginUser)
-router.post("/image/:id",avatharUser)
-router.get("/:id",getUser)
+router.post("/setAvatar/:id",avatharUser)
+router.get("/allusers/:id",getAllUsers)
 router.post("/logout/:id",logOut)
-
-
 
 
 

@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const path = require("path");
-const PORT =5000;
+const PORT =8800;
 const mongoose  = require("mongoose");
 const MONGO_URL ="mongodb://localhost:27017/Chat_App"
 const userRoute =require("./routes/userRoutes")
@@ -19,15 +19,17 @@ app.use(express.json());
 app.use(cors());
 
 
+app.get('/', (req, res) => {
+    res.send("Welcome to world")
+});
+
+
 
 
 // Routers
 
 app.use("/api/users",userRoute);
-app.use("/api/users",messageRoute);
-
-
-
+app.use("/api/message",messageRoute);
 
 
 

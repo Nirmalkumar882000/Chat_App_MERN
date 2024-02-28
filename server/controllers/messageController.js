@@ -1,47 +1,57 @@
 const Message =require("../models/messageModel")
 
-const addMessage =async(req,res)=>{
+
+
+const addMessage = async (req, res, next) => {
     try {
-        const {from,to,message}=req.body;
+        const {from,to,message} = req.body;
         const data = await Message.create({
             message:{
-                text:message
+                text: message
             },
-            users:[
+            users: [
                 from,
                 to
             ],
             sender:from,
-        })
-        if (data) {
-            return res.status(200).json({message:"Message Added Successfully"}
-            )};
-            return res.status(400).json({message:"Failed to add message to DB "})
-    } catch (error) {
-        return res.status(500).json({message:error.message})
+        });
+        if(data) return res.json({
+            msg: "Message added successfully!"
+        });
+        return res.json({
+            msg: "Failed to add message to DB"
+        });
+
+    } catch (err) {
+        next(err);
     }
-}
+};
 
 
 
-const getAllMessage =async(req,res)=>{
+
+
+const getAllMessage = async (req, res, next) => {
     try {
-        const messages = await  Message.find({
+        const {from,to} = req.body;
+        const messages = await Message.find({
             users:{
-                $all:[from,to]
-            }
-        }).sort({updatedAt: 1})
-        const projectMessage = messages.map((msg)=>{
+                $all: [from,to],
+            },
+        }).sort({ updatedAt: 1 });
+
+        const projectMessages = messages.map((msg)=>{
             return{
-                fromself:msg.send.toString() === from,
+                fromSelf: msg.sender.toString() === from,
                 message: msg.message.text,
-            }
-        })
-        return res.status(200).json(projectMessage)
+            };
+        });
+
+        res.json(projectMessages);
     } catch (error) {
-        return res.status(500).json({message:error.message})
+        next(error);
     }
-}
+};
 
 
 module.exports = {addMessage,getAllMessage}
